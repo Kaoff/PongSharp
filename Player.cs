@@ -13,6 +13,7 @@ namespace PongSharp
     {
         private Vector2 _position;
         private Vector2 _size;
+        private bool _isCPU;
 
         public Vector2 Position { get { return _position; } set { this._position = value; } }
         public Vector2 Size { get { return _size; } private set { } }
@@ -28,7 +29,8 @@ namespace PongSharp
             this.Score = 0;
             this.Speed = 200f;
             this.keySet = keySet;
-
+            this._isCPU = (keySet == null);
+            
             this._size = new Vector2(20, 80);
 
             this.texture = new Texture2D(graphics.GraphicsDevice, (int)_size.X, (int)_size.Y);
@@ -41,18 +43,29 @@ namespace PongSharp
             texture.SetData(data);
         }
 
-        public void Update(GraphicsDeviceManager graphics, GameTime time)
+        public void Update(GraphicsDeviceManager graphics, GameTime time, Ball ball)
         {
-            KeyboardState state = Keyboard.GetState();
-
-            if (state.IsKeyDown(this.keySet.Up))
+            if (!_isCPU)
             {
-                this._position.Y -= this.Speed * (float)time.ElapsedGameTime.TotalSeconds;
+                KeyboardState state = Keyboard.GetState();
+
+                if (state.IsKeyDown(this.keySet.Up))
+                {
+                    this._position.Y -= this.Speed * (float)time.ElapsedGameTime.TotalSeconds;
+                }
+
+                if (state.IsKeyDown(this.keySet.Down))
+                {
+                    this._position.Y += this.Speed * (float)time.ElapsedGameTime.TotalSeconds;
+                }
             }
-
-            if (state.IsKeyDown(this.keySet.Down))
+            else
             {
-                this._position.Y += this.Speed * (float)time.ElapsedGameTime.TotalSeconds;
+                if (ball.Position.Y + ball.Size.Y / 2 < this._position.Y + this._size.Y / 2)
+                    this._position.Y -= this.Speed * (float)time.ElapsedGameTime.TotalSeconds;
+
+                if (ball.Position.Y + ball.Size.Y / 2 > this._position.Y + this._size.Y / 2)
+                    this._position.Y += this.Speed * (float)time.ElapsedGameTime.TotalSeconds;
             }
 
             if (_position.Y < 10) _position.Y = 10;

@@ -36,7 +36,7 @@ namespace PongSharp
             p1 = new Player(graphics, new Vector2(10, 10), p1keyset);
 
             KeySet p2keyset = new KeySet(Keys.Up, Keys.Down);
-            p2 = new Player(graphics, new Vector2(0, 0), p2keyset);
+            p2 = new Player(graphics, new Vector2(0, 0), null);
             p2.Position = new Vector2(graphics.PreferredBackBufferWidth - p2.Size.X - 10, 10);
 
             ball = new Ball(graphics);
@@ -77,9 +77,9 @@ namespace PongSharp
 
             KeyboardState state = Keyboard.GetState();
 
-            p1.Update(graphics, gameTime);
-            p2.Update(graphics, gameTime);
-            ball.Update(gameTime);
+            p1.Update(graphics, gameTime, ball);
+            p2.Update(graphics, gameTime, ball);
+            ball.Update(gameTime, graphics, p1, p2);
 
             base.Update(gameTime);
         }

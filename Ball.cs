@@ -25,6 +25,14 @@ namespace PongSharp
         }
 
         private Vector2 _size;
+        public Vector2 Size
+        {
+            get
+            {
+                return _size;
+            }
+        }
+
         private Texture2D texture;
 
         private Vector2 _direction;
@@ -45,10 +53,10 @@ namespace PongSharp
 
         public Ball(GraphicsDeviceManager graphics)
         {
-            this._size = new Vector2(10, 10);
+            this._size = new Vector2(20, 20);
             this._position = new Vector2(graphics.PreferredBackBufferWidth / 2, graphics.PreferredBackBufferHeight /2) - _size / 2;
-            this._direction = new Vector2(1, 0);
-            this.Speed = 100f;
+            this._direction = new Vector2(1, 1);
+            this.Speed = 200f;
 
             this.texture = new Texture2D(graphics.GraphicsDevice, (int)_size.X, (int)_size.Y);
 
@@ -60,8 +68,53 @@ namespace PongSharp
             texture.SetData(data);
         }
 
-        public void Update(GameTime gameTime)
+        public bool CollidePlayer(Player ply)
         {
+            if (_position.Y < ply.Position.Y + ply.Size.Y &&
+                _size.Y + _position.Y > ply.Position.Y &&
+                _position.X < ply.Position.X + ply.Size.X &&
+                _position.X + _size.X > ply.Position.X)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public void Update(GameTime gameTime, GraphicsDeviceManager graphics, Player p1, Player p2)
+        {
+            if (CollidePlayer(p1))
+            {
+                int yDir = 0;
+
+                if (p1.Position.Y + p1.Size.Y / 2 > this._position.Y + this._size.Y / 2)
+                    yDir = -1;
+                else
+                    yDir = 1;
+
+                this._direction = new Vector2(1, yDir);
+            }
+
+            if (CollidePlayer(p2))
+            {
+                int yDir = 0;
+
+                if (p2.Position.Y + p2.Size.Y / 2 > this._position.Y + this._size.Y / 2)
+                    yDir = -1;
+                else
+                    yDir = 1;
+
+                this._direction = new Vector2(-1, yDir);
+            }
+
+            if (this._position.X <= 0 ||
+                this._position.X >= (graphics.PreferredBackBufferWidth - this._size.X))
+                this._position = new Vector2(graphics.PreferredBackBufferWidth / 2, graphics.PreferredBackBufferHeight / 2) - _size / 2;
+
+            if (this._position.Y <= 0 ||
+                this._position.Y >= (graphics.PreferredBackBufferHeight - this._size.Y))
+                this._direction.Y *= -1;
+
             this._position += _direction * this.Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
